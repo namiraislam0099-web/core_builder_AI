@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Core Builder — Smart v1 (Dark)</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- CodeMirror (v5) CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
+  <style>
+    :root {
+      --bg:#07070b; --panel:#0f1013; --muted:#9aa0a6;
+      --accent:#9b59ff; --accent-2:#7b4bff; --glass: rgba(255,255,255,0.03);
+      --card:#0f1113;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue";
+         background:linear-gradient(180deg,#050506 0%, #0b0b0c 100%);color:#e6e6e9}
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;
+           border-bottom:1px solid rgba(255,255,255,0.03)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+          display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px;
+          box-shadow:0 8px 30px rgba(123,75,255,0.12)}
+    h1{font-size:16px;margin:0}
+    p.sub{margin:0;color:var(--muted);font-size:12px}
+    main{display:grid;grid-template-columns:420px 1fr 420px;gap:18px;padding:18px}
+    .panel{background:var(--panel);border-radius:12px;padding:14px;box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+    .chat-area{height:58vh;overflow:auto;padding:8px;border-radius:8px;
+               background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .msg{margin:8px 0;padding:10px;border-radius:8px}
+    .msg.user{background:linear-gradient(90deg, rgba(155,89,255,0.12), rgba(123,75,255,0.08));text-align:left}
+    .msg.ai{background:rgba(255,255,255,0.018)}
+    textarea, input[type="text"]{width:100%;background:transparent;border:1px solid rgba(255,255,255,0.04);
+                                 padding:10px;border-radius:8px;color:#fff;outline:none}
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 12px;
+         border-radius:8px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(123,75,255,0.12)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+    .preview-wrap{display:flex;flex-direction:column;height:78vh}
+    .preview-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .phone-preview{flex:1;background:var(--card);border-radius:16px;padding:8px;border:1px solid rgba(255,255,255,0.02);
+                   overflow:hidden;display:flex;align-items:center;justify-content:center}
+    iframe#preview{width:100%;height:100%;border-radius:12px;border:none;background:white}
+    .library{height:78vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.012), transparent);padding:12px;border-radius:10px;
+          border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
+    .small{font-size:12px;color:var(--muted)}
+    .code-area{height:320px;border-radius:8px;overflow:hidden}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .library-list{display:flex;flex-direction:column;gap:8px}
+    .lib-item{display:flex;align-items:center;gap:12px}
+    .thumb{width:56px;height:40px;border-radius:8px;background:linear-gradient(180deg, rgba(155,89,255,0.08),
+          rgba(123,75,255,0.04));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    footer{padding:12px 18px;color:var(--muted);font-size:13px;text-align:center}
+    .muted{color:var(--muted)}
+    @media (max-width:1100px){main{grid-template-columns:1fr; padding:12px} 
+      .preview-wrap{order:3} .library{order:2}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">CB</div>
+    <div>
+      <h1>Core Builder</h1>
+      <p class="sub">Type → Preview → Edit → Export</p>
+    </div>
+  </div>
+  <div class="pill small muted">Smart v1 • Local + Gemini</div>
+</header>
+
+<main>
+  <!-- Left: Chat & generator -->
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><strong>Builder Chat</strong>
+        <div class="small muted">Describe a screen in plain English (e.g., "dark login screen with purple button")</div>
+      </div>
+      <div class="small muted">Connected to Gemini</div>
+    </div>
+
+    <div class="chat-area" id="chatArea"></div>
+
+    <div style="margin-top:10px">
+      <textarea id="cmd" placeholder='Describe screen — e.g. "Create a dark login screen with purple login button and Continue as Guest link."' rows="4"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn" id="genBtn">Generate Screen</button>
+        <button class="btn ghost" id="aiAssist">AI Assist (Gemini)</button>
+        <button class="btn ghost" id="sampleBtn">Sample Prompts</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ghost" id="clearBtn">Clear Chat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: live preview -->
+  <div class="panel preview-wrap">
+    <div class="preview-top">
+      <div><strong>Live Preview</strong>
+        <div class="small muted">Generated UI preview (click Export when ready)</div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="editBtn">Edit</button>
+        <button class="btn" id="saveBtn">Save to Library</button>
+        <button class="btn" id="exportBtn">Translate → Export</button>
+      </div>
+    </div>
+    <div class="phone-preview" id="phonePreview">
+      <iframe id="preview" sandbox="allow-scripts"></iframe>
+    </div>
+  </div>
+
+  <!-- Right: library & code editor -->
+  <div class="panel library">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>App Code Editor</strong>
+          <div class="small muted">Edit generated code and preview</div>
+        </div>
+        <div class="small muted">Auto-save</div>
+      </div>
+      <div class="code-area">
+        <textarea id="codeEditor" class="code" placeholder="Generated HTML/CSS/JS will appear here"></textarea>
+        <div id="cmWrap" style="display:none;height:100%"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button class="btn ghost" id="applyCode">Apply Changes</button>
+        <button class="btn" id="saveCode">Save Code to Library</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>Core Builder v1 • Powered by Gemini AI</footer>
+
+<script>
+  const apiKey ="AIzaSyDDlbZCiYjvCJNrNX3qFrkY100EiDmSq1I";  
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+  async function askGemini(prompt) {
+    const payload = {
+      contents: [{ parts: [{ text: prompt }] }]
+    };
+
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No response";
+  }
+
+  document.getElementById("aiAssist").addEventListener("click", async () => {
+    const input = document.getElementById("cmd").value;
+    if (!input.trim()) return alert("Please type something first!");
+
+    const reply = await askGemini(input);
+    const chat = document.getElementById("chatArea");
+    chat.innerHTML += `<div class="msg user">${input}</div>`;
+    chat.innerHTML += `<div class="msg ai">${reply}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+  });
+
+  // ✅ Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('✅ Service worker registered:', reg))
+        .catch(err => console.log('⚠️ Service worker failed:', err));
+    });
+  }
+</script>
+</body>
+    </html>
