@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Core Builder AI</title>
+  <meta name="theme-color" content="#5A67D8"/>
+
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Styles & CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <style>
+    body { margin:0; font-family:Arial, sans-serif; background:#1F2937; color:white; text-align:center; }
+    #editor { height:90vh; text-align:left; }
+  </style>
+</head>
+<body>
+  <h1>Core Builder AI</h1>
+  <textarea id="editor">// Start building your app...</textarea>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <script>
+    const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+      lineNumbers: true, mode: "javascript", theme: "default"
+    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('Service Worker registered'));
+    }
+  </script>
+</body>
+</html>
